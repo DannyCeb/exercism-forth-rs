@@ -1,4 +1,7 @@
-use forth::{Error, Forth, Value};
+use forth::{
+    error::{Error, Value},
+    Forth,
+};
 
 #[test]
 fn no_input_no_stack() {
