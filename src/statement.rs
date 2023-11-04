@@ -1,3 +1,4 @@
+use std::collections::btree_map::OccupiedEntry;
 use std::collections::HashMap;
 
 use crate::arithmetic_operation::ArithmeticOperation;
@@ -29,14 +30,54 @@ impl TryFrom<&str> for Statement {
 
 #[derive(Debug, Clone)]
 
-pub struct CustomStatement(HashMap<&'static str, Vec<Statement>>);
+pub struct CustomStatement<'a>(HashMap<&'a str, Vec<Statement>>);
 
-impl CustomStatement {
+impl<'a> CustomStatement<'a> {
     pub fn new() -> Self {
         CustomStatement(HashMap::default())
     }
 
-    pub fn insert_value(&mut self, value: &str) -> Result {
-        todo!()
+    pub fn insert_value(&mut self, line: &'a str) -> Result {
+        let last_index = line.split_whitespace().count() - 1;
+        let v: Vec<&str> = line
+            .split_whitespace()
+            .enumerate()
+            .filter_map(|(i, word)| {
+                if i != 0 && i != last_index {
+                    Some(word)
+                } else {
+                    None
+                }
+            })
+            .collect();
+
+        let aux_key = v[0];
+        for (i, v) in v.into_iter().enumerate() {
+            if i == 0 {
+                *self.0.entry(v).or_insert(Vec::default()) = Vec::default();
+            } else {
+                let commands = match self.known_command(v) {
+                    Some(c) => c,
+                    None => match Statement::try_from(v) {
+                        Ok(s) => Vec::from([s]),
+                        Err(_) => {
+                            return Err(Error::InvalidWord);
+                        }
+                    },
+                };
+                let dic_pos = self.0.get_mut(aux_key).unwrap();
+                for l in commands {
+                    dic_pos.push(l);
+                }
+            }
+        }
+        Ok(())
+    }
+
+    fn known_command(&self, command: &str) -> Option<Vec<Statement>> {
+        match self.0.get(command) {
+            Some(c) => Some(c.clone()),
+            None => None,
+        }
     }
 }
