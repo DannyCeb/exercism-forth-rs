@@ -1,4 +1,3 @@
-use std::collections::btree_map::OccupiedEntry;
 use std::collections::HashMap;
 
 use crate::arithmetic_operation::ArithmeticOperation;
@@ -30,31 +29,30 @@ impl TryFrom<&str> for Statement {
 
 #[derive(Debug, Clone)]
 
-pub struct CustomStatement<'a>(HashMap<&'a str, Vec<Statement>>);
+pub struct CustomStatement(HashMap<String, Vec<Statement>>);
 
-impl<'a> CustomStatement<'a> {
+impl CustomStatement {
     pub fn new() -> Self {
         CustomStatement(HashMap::default())
     }
 
-    pub fn insert_value(&mut self, line: &'a str) -> Result {
-        let last_index = line.split_whitespace().count() - 1;
-        let v: Vec<&str> = line
-            .split_whitespace()
-            .enumerate()
-            .filter_map(|(i, word)| {
-                if i != 0 && i != last_index {
-                    Some(word)
-                } else {
-                    None
-                }
-            })
-            .collect();
+    pub fn insert_value(&mut self, line: String) -> Result {
+        let v: Vec<&str> = line.split_whitespace().collect();
 
         let aux_key = v[0];
+        match v.get(0) {
+            Some(cad) => match cad.parse::<i32>() {
+                Ok(_) => {
+                    return Err(Error::InvalidWord);
+                }
+                _ => {}
+            },
+            None => {}
+        }
+
         for (i, v) in v.into_iter().enumerate() {
             if i == 0 {
-                *self.0.entry(v).or_insert(Vec::default()) = Vec::default();
+                *self.0.entry(v.to_string()).or_insert(Vec::default()) = Vec::default();
             } else {
                 let commands = match self.known_command(v) {
                     Some(c) => c,
@@ -71,10 +69,11 @@ impl<'a> CustomStatement<'a> {
                 }
             }
         }
+        self.0.shrink_to_fit();
         Ok(())
     }
 
-    fn known_command(&self, command: &str) -> Option<Vec<Statement>> {
+    pub fn known_command(&self, command: &str) -> Option<Vec<Statement>> {
         match self.0.get(command) {
             Some(c) => Some(c.clone()),
             None => None,
