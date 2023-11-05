@@ -49,11 +49,14 @@ impl CustomStatement {
             },
             None => {}
         }
+        let mut aux_pop = true;
+        if v[0] != v[1] {
+            *self.0.entry(v[0].to_string()).or_insert(Vec::default()) = Vec::default();
+            aux_pop = false;
+        }
 
         for (i, v) in v.into_iter().enumerate() {
-            if i == 0 {
-                *self.0.entry(v.to_string()).or_insert(Vec::default()) = Vec::default();
-            } else {
+            if i > 0 {
                 let commands = match self.known_command(v) {
                     Some(c) => c,
                     None => match Statement::try_from(v) {
@@ -65,11 +68,16 @@ impl CustomStatement {
                 };
                 let dic_pos = self.0.get_mut(aux_key).unwrap();
                 for l in commands {
+                    if aux_pop {
+                        dic_pos.pop().unwrap();
+                        aux_pop = false;
+                    }
                     dic_pos.push(l);
                 }
             }
         }
         self.0.shrink_to_fit();
+        println!("{:#?}", self.0);
         Ok(())
     }
 

@@ -10,7 +10,7 @@ use crate::statement::{CustomStatement, Statement};
 
 pub struct Forth {
     instructions: Option<Vec<Statement>>,
-    custom_instructions: CustomStatement,
+    pub custom_instructions: CustomStatement,
     st: Stack,
 }
 

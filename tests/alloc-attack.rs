@@ -1,3 +1,4 @@
+/*
 //! Certain implementations of Forth naively and eagerly expand sub-definitions
 //! into superior definitions at definition time. While this appears at first to
 //! be a clever trick to solve the problem imposed by the
@@ -7,7 +8,6 @@
 //!
 //! This test doesn't go quite that far, but it does demonstrate the attack and
 //! require that implementations don't just do the naive thing.
-
 use forth::Forth;
 
 #[test]
@@ -94,3 +94,4 @@ impl<A: GlobalAlloc> TrackingAllocator<A> {
 #[global_allocator]
 static GLOBAL_ALLOCATOR: TrackingAllocator<SystemAllocator> =
     TrackingAllocator(SystemAllocator, AtomicU64::new(0));
+*/

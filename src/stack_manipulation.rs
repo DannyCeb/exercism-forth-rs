@@ -13,7 +13,7 @@ impl TryFrom<&str> for StackManipulation {
             "dup" => Ok(StackManipulation::Dup),
             "drop" => Ok(StackManipulation::Drop),
             "swap" => Ok(StackManipulation::Swap),
-            "Over" => Ok(StackManipulation::Over),
+            "over" => Ok(StackManipulation::Over),
             _ => Err("Invalid str"),
         }
     }
